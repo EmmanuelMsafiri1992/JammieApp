@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { User, Package2, Beef, Wheat, Circle, Zap, FileText } from 'lucide-react';
 import InventoryForm from './InventoryForm';
 import WorkerEntriesModal from './WorkerEntriesModal';
+import { normalizeName } from '@/lib/nameNormalization';
 
 const WorkerApp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -29,8 +30,15 @@ const WorkerApp: React.FC = () => {
       alert('Please enter both first and last name');
       return;
     }
-    localStorage.setItem('workerFirstName', firstName);
-    localStorage.setItem('workerLastName', lastName);
+    
+    // Normalize the names to ensure consistency
+    const normalizedFirstName = normalizeName(firstName.trim());
+    const normalizedLastName = normalizeName(lastName.trim());
+    
+    localStorage.setItem('workerFirstName', normalizedFirstName);
+    localStorage.setItem('workerLastName', normalizedLastName);
+    setFirstName(normalizedFirstName);
+    setLastName(normalizedLastName);
     setIsNameSet(true);
   };
 

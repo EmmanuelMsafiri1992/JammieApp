@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Trash2, Calculator, Users, Settings, Download, DollarSign, PackageOpen, Clock, CreditCard, Refrigerator } from 'lucide-react';
-import SyncTotalsButton from './SyncTotalsButton';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
 import { exportToExcel } from './ExcelExport';
@@ -129,7 +128,7 @@ const Dashboard: React.FC = () => {
       setEntries([]);
       
       // Step 5: Reload saved totals to ensure display shows the preserved totals
-      await loadSavedTotals();
+      await loadStoredTotals();
       
       alert('All shooter entries have been deleted and Pays have been reset! Totals remain unchanged.');
     } catch (error) {
@@ -177,9 +176,6 @@ const Dashboard: React.FC = () => {
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">ZAKR Wild Game Hillston Chiller</h1>
             <p className="text-gray-300">Real-time inventory tracking dashboard</p>
-            <div className="mt-2">
-              <SyncTotalsButton />
-            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2 w-full max-w-md">

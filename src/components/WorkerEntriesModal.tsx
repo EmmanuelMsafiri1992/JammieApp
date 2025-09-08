@@ -99,7 +99,6 @@ const WorkerEntriesModal: React.FC<WorkerEntriesModalProps> = ({ isOpen, onClose
                   <TableHead>Chiller</TableHead>
                   <TableHead>Count</TableHead>
                   <TableHead>Weight (kg)</TableHead>
-                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -119,16 +118,6 @@ const WorkerEntriesModal: React.FC<WorkerEntriesModalProps> = ({ isOpen, onClose
                     <TableCell>Chiller {entry.chiller}</TableCell>
                     <TableCell className="text-center">{entry.total}</TableCell>
                     <TableCell className="text-center">{entry.kilograms}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Badge variant={entry.loaded_out ? 'default' : 'secondary'}>
-                          {entry.loaded_out ? 'Loaded' : 'In Stock'}
-                        </Badge>
-                        <Badge variant={entry.paid ? 'default' : 'secondary'}>
-                          {entry.paid ? 'Paid' : 'Unpaid'}
-                        </Badge>
-                      </div>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

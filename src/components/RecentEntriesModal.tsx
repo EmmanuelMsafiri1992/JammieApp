@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface InventoryEntry {
@@ -23,6 +25,7 @@ interface RecentEntriesModalProps {
 const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose }) => {
   const [entries, setEntries] = useState<InventoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadRecentEntries = async () => {
     setIsLoading(true);
@@ -32,7 +35,7 @@ const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose
         .select('*')
         .gt('total', 0) // Filter out entries where total (goats) is 0
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(100);
       
       if (error) throw error;
       setEntries(data || []);
@@ -46,14 +49,63 @@ const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose
   useEffect(() => {
     if (isOpen) {
       loadRecentEntries();
+      setSearchTerm(''); // Clear search when modal opens
     }
   }, [isOpen]);
+
+  // Filter entries based on search term
+  const filteredEntries = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return entries;
+    }
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    return entries.filter(entry => 
+      entry.worker_name.toLowerCase().includes(searchLower) ||
+      entry.category.toLowerCase().includes(searchLower) ||
+      entry.chiller.toString().includes(searchLower) ||
+      entry.total.toString().includes(searchLower) ||
+      entry.kilograms.toString().includes(searchLower) ||
+      new Date(entry.created_at).toLocaleDateString().includes(searchLower)
+    );
+  }, [entries, searchTerm]);
+
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Recent Inventory Entries</DialogTitle>
+          
+          {/* Search Input - positioned right after title */}
+          <div className="flex items-center gap-2 mt-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Search by worker, category, chiller, count, weight, or date..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+            <div className="text-sm text-gray-500 whitespace-nowrap">
+              {searchTerm ? `${filteredEntries.length} of ${entries.length}` : `${entries.length} entries`}
+            </div>
+          </div>
         </DialogHeader>
         
         {isLoading ? (
@@ -72,7 +124,7 @@ const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose
               </TableRow>
             </TableHeader>
             <TableBody>
-              {entries.map((entry) => (
+              {filteredEntries.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell>{entry.worker_name}</TableCell>
                   <TableCell>{entry.category}</TableCell>
@@ -91,6 +143,21 @@ const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose
               ))}
             </TableBody>
           </Table>
+        )}
+        
+        {!isLoading && filteredEntries.length === 0 && searchTerm && (
+          <div className="text-center py-8 text-gray-500">
+            <div className="mb-2">No entries found matching "{searchTerm}"</div>
+            <Button variant="outline" size="sm" onClick={clearSearch}>
+              Clear search
+            </Button>
+          </div>
+        )}
+        
+        {!isLoading && entries.length === 0 && !searchTerm && (
+          <div className="text-center py-8 text-gray-500">
+            No recent entries found
+          </div>
         )}
         
         <div className="flex justify-end pt-4">

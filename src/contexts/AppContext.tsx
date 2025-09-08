@@ -364,13 +364,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           saved_at: new Date().toISOString()
         });
 
-      // Delete inventory entries for this chiller
-      await supabase
-        .from('inventory')
-        .delete()
-        .eq('chiller', chillerNumber.toString());
-
-      console.log(`Chiller ${chillerNumber} totals reset and entries deleted`);
+      // Note: Inventory entries are preserved to maintain shooter/pays data
+      console.log(`Chiller ${chillerNumber} totals reset while preserving entries`);
     } catch (error) {
       console.error(`Error resetting chiller ${chillerNumber} totals:`, error);
       throw error;
@@ -395,15 +390,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         throw new Error(`No entries found in Chiller ${chillerNumber}`);
       }
 
-      // Calculate current totals and average weight per item
-      const totalItems = entries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
-      const totalWeight = entries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
+      // Get current chiller totals from stored totals (not from database entries)
+      const chillerKey = `chiller${chillerNumber}` as keyof ChillerTotals;
+      const currentChillerTotal = newChillerTotals[chillerKey].total;
+      const currentChillerKg = newChillerTotals[chillerKey].kilograms;
       
-      if (quantity > totalItems) {
-        throw new Error(`Cannot remove ${quantity} items. Only ${totalItems} items available in Chiller ${chillerNumber}`);
+      if (quantity > currentChillerTotal) {
+        throw new Error(`Cannot remove ${quantity} items. Only ${currentChillerTotal} items available in Chiller ${chillerNumber}`);
       }
 
-      const avgWeightPerItem = totalItems > 0 ? totalWeight / totalItems : 0;
+      // Calculate totals from entries for proportional calculations
+      const totalItems = entries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
+      const totalWeight = entries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
+
+      // Calculate weight to remove based on current stored totals
+      const avgWeightPerItem = currentChillerTotal > 0 ? currentChillerKg / currentChillerTotal : 0;
       const weightToRemove = quantity * avgWeightPerItem;
 
       // Calculate proportional breakdown reduction
@@ -428,8 +429,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       });
 
-      // Update chiller totals
-      const chillerKey = `chiller${chillerNumber}` as keyof ChillerTotals;
+      // Update chiller totals (reuse existing chillerKey variable)
       newChillerTotals[chillerKey].total = Math.max(0, newChillerTotals[chillerKey].total - quantity);
       newChillerTotals[chillerKey].kilograms = Math.max(0, newChillerTotals[chillerKey].kilograms - weightToRemove);
 
@@ -497,13 +497,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           saved_at: new Date().toISOString()
         });
 
-      // Delete goat inventory entries
-      await supabase
-        .from('inventory')
-        .delete()
-        .eq('category', 'Goats');
-
-      console.log('Goats totals reset and entries deleted');
+      // Note: Goat inventory entries are preserved to maintain shooter/pays data
+      console.log('Goats totals reset while preserving entries');
     } catch (error) {
       console.error('Error resetting goats totals:', error);
       throw error;

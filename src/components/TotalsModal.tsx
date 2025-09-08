@@ -27,8 +27,8 @@ interface TotalsModalProps {
 const TotalsModal: React.FC<TotalsModalProps> = ({ isOpen, onClose, entries }) => {
   const { chillerTotals, goatsTotals, kangarooBreakdown } = useAppContext();
   
-  // Grand total is sum of all chiller totals plus goats
-  const grandTotal = chillerTotals.chiller1.total + chillerTotals.chiller2.total + chillerTotals.chiller3.total + chillerTotals.chiller4.total + goatsTotals.total;
+  // Grand total is sum of all chiller totals plus goats (rounded)
+  const grandTotal = Math.round(chillerTotals.chiller1.total + chillerTotals.chiller2.total + chillerTotals.chiller3.total + chillerTotals.chiller4.total + goatsTotals.total);
   const grandKg = chillerTotals.chiller1.kilograms + chillerTotals.chiller2.kilograms + chillerTotals.chiller3.kilograms + chillerTotals.chiller4.kilograms + goatsTotals.kilograms;
 
   return (
@@ -66,15 +66,15 @@ const TotalsModal: React.FC<TotalsModalProps> = ({ isOpen, onClose, entries }) =
             <CardContent className="space-y-2">
               <div className="flex justify-between items-center p-2 border rounded">
                 <span className="font-medium text-red-600">Red Kangaroos</span>
-                <span className="font-semibold">{kangarooBreakdown.red.total} / {kangarooBreakdown.red.kilograms.toFixed(1)} kg</span>
+                <span className="font-semibold">{Math.round(kangarooBreakdown.red.total)} / {kangarooBreakdown.red.kilograms.toFixed(1)} kg</span>
               </div>
               <div className="flex justify-between items-center p-2 border rounded">
                 <span className="font-medium text-green-600">Eastern Grey</span>
-                <span className="font-semibold">{kangarooBreakdown.eastern.total} / {kangarooBreakdown.eastern.kilograms.toFixed(1)} kg</span>
+                <span className="font-semibold">{Math.round(kangarooBreakdown.eastern.total)} / {kangarooBreakdown.eastern.kilograms.toFixed(1)} kg</span>
               </div>
               <div className="flex justify-between items-center p-2 border rounded">
                 <span className="font-medium text-blue-600">Western Grey</span>
-                <span className="font-semibold">{kangarooBreakdown.western.total} / {kangarooBreakdown.western.kilograms.toFixed(1)} kg</span>
+                <span className="font-semibold">{Math.round(kangarooBreakdown.western.total)} / {kangarooBreakdown.western.kilograms.toFixed(1)} kg</span>
               </div>
             </CardContent>
           </Card>
@@ -90,14 +90,14 @@ const TotalsModal: React.FC<TotalsModalProps> = ({ isOpen, onClose, entries }) =
               return (
                 <div key={chillerNum} className="flex justify-between items-center p-3 border rounded">
                   <span className="font-medium">{chillerName}</span>
-                  <span className="font-semibold">{totals.total} / {totals.kilograms.toFixed(1)} kg</span>
+                  <span className="font-semibold">{Math.round(totals.total)} / {totals.kilograms.toFixed(1)} kg</span>
                 </div>
               );
             })}
             
             <div className="flex justify-between items-center p-3 border rounded">
               <span className="font-medium">Goats</span>
-              <span className="font-semibold">{goatsTotals.total} / {goatsTotals.kilograms.toFixed(1)} kg</span>
+              <span className="font-semibold">{Math.round(goatsTotals.total)} / {goatsTotals.kilograms.toFixed(1)} kg</span>
             </div>
           </div>
         </div>

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, X } from 'lucide-react';
 import EditDeleteActions from './EditDeleteActions';
+import Pagination from './Pagination';
 
 interface InventoryEntry {
   id: string;
@@ -22,8 +26,55 @@ interface DashboardTableProps {
 }
 
 const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) => {
-  // Show all entries (removed filter that was hiding entries with total = 0)
-  const filteredEntries = entries;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filter entries based on search term
+  const filteredEntries = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return entries;
+    }
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    return entries.filter(entry => 
+      entry.worker_name.toLowerCase().includes(searchLower) ||
+      (entry.shooter_name && entry.shooter_name.toLowerCase().includes(searchLower)) ||
+      entry.category.toLowerCase().includes(searchLower) ||
+      entry.chiller?.toString().includes(searchLower) ||
+      entry.total.toString().includes(searchLower) ||
+      entry.kilograms.toString().includes(searchLower) ||
+      new Date(entry.created_at).toLocaleDateString().includes(searchLower) ||
+      (entry.loaded_out ? 'loaded out' : entry.paid ? 'paid' : 'active').includes(searchLower)
+    );
+  }, [entries, searchTerm]);
+  
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedEntries = filteredEntries.slice(startIndex, endIndex);
+
+  // Reset to first page when entries change significantly
+  useMemo(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [filteredEntries.length, totalPages, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setCurrentPage(1); // Reset to first page when clearing search
+  };
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'Red': return 'bg-red-100 text-red-800 border-red-200';
@@ -47,8 +98,36 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
   };
 
   return (
-    <div className="overflow-x-auto">
-      <Table>
+    <div className="space-y-4">
+      {/* Search Input */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            type="text"
+            placeholder="Search entries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-blue-500"
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearSearch}
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-white/10 text-gray-400 hover:text-white"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+        <div className="text-sm text-gray-300 whitespace-nowrap">
+          {searchTerm ? `${filteredEntries.length} of ${entries.length}` : `${entries.length} entries`}
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <Table>
         <TableHeader>
           <TableRow className="border-white/20">
             <TableHead className="text-gray-300">Worker</TableHead>
@@ -63,7 +142,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredEntries.map((entry) => (
+          {paginatedEntries.map((entry) => (
             <TableRow key={entry.id} className="border-white/10 hover:bg-white/5">
               <TableCell className="text-white font-medium">{entry.worker_name}</TableCell>
               <TableCell className="text-white">{entry.shooter_name || 'N/A'}</TableCell>
@@ -90,12 +169,33 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
           ))}
 
         </TableBody>
-      </Table>
+        </Table>
+      </div>
       
-      {filteredEntries.length === 0 && (
+      {filteredEntries.length === 0 && searchTerm && (
+        <div className="text-center py-8 text-gray-400">
+          <div className="mb-2">No entries found matching "{searchTerm}"</div>
+          <Button variant="outline" size="sm" onClick={clearSearch} className="text-gray-300 border-gray-600 hover:bg-white/10">
+            Clear search
+          </Button>
+        </div>
+      )}
+      
+      {filteredEntries.length === 0 && !searchTerm && (
         <div className="text-center py-8 text-gray-400">
           No inventory entries found
         </div>
+      )}
+      
+      {filteredEntries.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredEntries.length}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
       )}
     </div>
   );
