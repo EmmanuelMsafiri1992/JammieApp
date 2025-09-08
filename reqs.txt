@@ -1,0 +1,21 @@
+On the worker screen
+1 Can we have an error correction on name entry, so things like capitals, spaces and small typing errors dont affect the user. Eg. John Smith and John smith currently show as 2 different workers, would like those sort of typing errors corrected into 1 worker
+
+2 when view worker entry is pressed, and you scroll to the right, it shows a status column, with in stock and unpaid. This column "status" can be removed
+
+
+On the Admin screen
+1 need to ensure when paid is pressed, nothing in the totals tab is changed, grand total, breakdown, chiller 123 or 4, but shooter data and pays is to be reset
+
+2 loadout tab, has a button for each chiller. Or if only a partial loadout, an individual chiller can be selected, and a number allocated. 
+Whichever way this loadout function is used, it can not affect any data in shooters or pays, but must remove whatever is allocated from the selected chiller, and from breakdown and from grand total. At the moment, if I use a loadout button, it removes data from shooter and pays also, which is incorrect 
+
+3 sync totals button is to be removed
+
+4 last time I done a partial loadout, the totals said there was say 300 in chiller 1, I tried to do a partial loadout of say 100, but the app errored and said there was insufficient numbers in chiller 1. Don't know why but need that fixed. 
+
+5 the kangaroo breakdown, at the moment has decimal points. This can not be, please make it round to a whole number. One number more or less here or there is not important as far as rounding, the weight is critical.
+
+
+
+Zoob!369
