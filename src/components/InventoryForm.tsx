@@ -49,7 +49,15 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
 
     setIsSubmitting(true);
     try {
-      const insertData: any = {
+      const insertData: { 
+        worker_name: string; 
+        category: string; 
+        total: number; 
+        kilograms: number; 
+        loaded_out: boolean; 
+        paid: boolean; 
+        chiller?: string;
+      } = {
         worker_name: normalizeName(workerName),
         category: category,
         total: parseFloat(total),
@@ -93,23 +101,23 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="max-w-md mx-auto space-y-6">
+      <div className="max-w-md mx-auto space-y-6 pt-12 sm:pt-0">
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur">
-          <CardHeader className="text-center pb-4">
-            <div className={`w-16 h-16 bg-gradient-to-r ${getCategoryColor(category)} rounded-full mx-auto mb-4 flex items-center justify-center`}>
-              <Package className="w-8 h-8 text-white" />
+          <CardHeader className="text-center pb-4 px-4 sm:px-6">
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${getCategoryColor(category)} rounded-full mx-auto mb-4 flex items-center justify-center`}>
+              <Package className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">
               {category} Entry
             </CardTitle>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="chiller">Chiller *</Label>
+                <Label htmlFor="chiller" className="text-sm">Chiller *</Label>
                 <Select value={chiller} onValueChange={setChiller} required>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Select chiller" />
                   </SelectTrigger>
                   <SelectContent>
@@ -122,7 +130,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="total">Total Count *</Label>
+                <Label htmlFor="total" className="text-sm">Total Count *</Label>
                 <Input
                   id="total"
                   type="number"
@@ -132,11 +140,12 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
                   min="0"
                   step="1"
                   required
+                  className="text-sm"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="kilograms">Kilograms *</Label>
+                <Label htmlFor="kilograms" className="text-sm">Kilograms *</Label>
                 <Input
                   id="kilograms"
                   type="number"
@@ -146,15 +155,16 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
                   min="0"
                   step="0.1"
                   required
+                  className="text-sm"
                 />
               </div>
               
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button
                   type="button"
                   onClick={onBack}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 text-sm"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
@@ -163,7 +173,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ category, workerName, onB
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`flex-1 bg-gradient-to-r ${getCategoryColor(category)} text-white`}
+                  className={`flex-1 bg-gradient-to-r ${getCategoryColor(category)} text-white text-sm`}
                 >
                   <Save className={`w-4 h-4 mr-2 ${isSubmitting ? 'animate-pulse' : ''}`} />
                   {isSubmitting ? 'Saving...' : 'Save'}

@@ -20,10 +20,10 @@ const AppLayout: React.FC = () => {
     case 'worker':
       return (
         <div>
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
             <button
               onClick={handleBackToSelector}
-              className="px-4 py-2 bg-white/20 backdrop-blur text-white rounded-lg hover:bg-white/30 transition-colors"
+              className="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-white/20 backdrop-blur text-white rounded-lg hover:bg-white/30 transition-colors"
             >
               ← Back
             </button>
@@ -34,10 +34,10 @@ const AppLayout: React.FC = () => {
     case 'dashboard':
       return (
         <div>
-          <div className="absolute top-6 left-6 z-10">
+          <div className="absolute top-2 left-2 sm:top-6 sm:left-6 z-10">
             <button
               onClick={handleBackToSelector}
-              className="px-4 py-2 bg-white/20 backdrop-blur text-white rounded-lg hover:bg-white/30 transition-colors"
+              className="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-white/20 backdrop-blur text-white rounded-lg hover:bg-white/30 transition-colors"
             >
               ← Back
             </button>

@@ -33,53 +33,53 @@ const TotalsModal: React.FC<TotalsModalProps> = ({ isOpen, onClose, entries }) =
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <DialogTitle className="flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-4">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Calculator className="w-4 h-4 sm:w-5 sm:h-5" />
             Inventory Totals
           </DialogTitle>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="h-8 w-8 p-0 hover:bg-gray-100"
+            className="h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Grand Total</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-sm sm:text-base">Grand Total</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{grandTotal} / {grandKg.toFixed(1)} kg</div>
+            <CardContent className="pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{grandTotal} / {grandKg.toFixed(1)} kg</div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader>
-              <CardTitle>Kangaroo Breakdown</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-sm sm:text-base">Kangaroo Breakdown</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 pt-0">
               <div className="flex justify-between items-center p-2 border rounded">
-                <span className="font-medium text-red-600">Red Kangaroos</span>
-                <span className="font-semibold">{Math.round(kangarooBreakdown.red.total)} / {kangarooBreakdown.red.kilograms.toFixed(1)} kg</span>
+                <span className="font-medium text-red-600 text-xs sm:text-sm">Red Kangaroos</span>
+                <span className="font-semibold text-xs sm:text-sm">{Math.round(kangarooBreakdown.red.total)} / {kangarooBreakdown.red.kilograms.toFixed(1)} kg</span>
               </div>
               <div className="flex justify-between items-center p-2 border rounded">
-                <span className="font-medium text-green-600">Eastern Grey</span>
-                <span className="font-semibold">{Math.round(kangarooBreakdown.eastern.total)} / {kangarooBreakdown.eastern.kilograms.toFixed(1)} kg</span>
+                <span className="font-medium text-green-600 text-xs sm:text-sm">Eastern Grey</span>
+                <span className="font-semibold text-xs sm:text-sm">{Math.round(kangarooBreakdown.eastern.total)} / {kangarooBreakdown.eastern.kilograms.toFixed(1)} kg</span>
               </div>
               <div className="flex justify-between items-center p-2 border rounded">
-                <span className="font-medium text-blue-600">Western Grey</span>
-                <span className="font-semibold">{Math.round(kangarooBreakdown.western.total)} / {kangarooBreakdown.western.kilograms.toFixed(1)} kg</span>
+                <span className="font-medium text-blue-600 text-xs sm:text-sm">Western Grey</span>
+                <span className="font-semibold text-xs sm:text-sm">{Math.round(kangarooBreakdown.western.total)} / {kangarooBreakdown.western.kilograms.toFixed(1)} kg</span>
               </div>
             </CardContent>
           </Card>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[1, 2, 3, 4].map(chillerNum => {
               const chillerName = `Chiller ${chillerNum}`;
               const totals = chillerNum === 1 ? chillerTotals.chiller1 : 
@@ -88,16 +88,16 @@ const TotalsModal: React.FC<TotalsModalProps> = ({ isOpen, onClose, entries }) =
                            chillerTotals.chiller4;
               
               return (
-                <div key={chillerNum} className="flex justify-between items-center p-3 border rounded">
-                  <span className="font-medium">{chillerName}</span>
-                  <span className="font-semibold">{Math.round(totals.total)} / {totals.kilograms.toFixed(1)} kg</span>
+                <div key={chillerNum} className="flex justify-between items-center p-2 sm:p-3 border rounded">
+                  <span className="font-medium text-xs sm:text-sm">{chillerName}</span>
+                  <span className="font-semibold text-xs sm:text-sm">{Math.round(totals.total)} / {totals.kilograms.toFixed(1)} kg</span>
                 </div>
               );
             })}
             
-            <div className="flex justify-between items-center p-3 border rounded">
-              <span className="font-medium">Goats</span>
-              <span className="font-semibold">{Math.round(goatsTotals.total)} / {goatsTotals.kilograms.toFixed(1)} kg</span>
+            <div className="flex justify-between items-center p-2 sm:p-3 border rounded">
+              <span className="font-medium text-xs sm:text-sm">Goats</span>
+              <span className="font-semibold text-xs sm:text-sm">{Math.round(goatsTotals.total)} / {goatsTotals.kilograms.toFixed(1)} kg</span>
             </div>
           </div>
         </div>

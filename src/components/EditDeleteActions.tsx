@@ -73,65 +73,65 @@ const EditDeleteActions: React.FC<EditDeleteActionsProps> = ({ entry, onUpdate }
   };
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-1 sm:space-x-2">
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogTrigger asChild>
           <Button 
             size="sm" 
             variant="outline" 
-            className="text-blue-600 hover:text-blue-700 bg-white/10 border-blue-500/50 hover:bg-blue-500/20"
+            className="text-blue-600 hover:text-blue-700 bg-white/10 border-blue-500/50 hover:bg-blue-500/20 p-1 sm:p-2"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-slate-800 border-slate-700 mx-4 sm:mx-0 max-w-sm sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Edit Entry</DialogTitle>
+            <DialogTitle className="text-white text-lg">Edit Entry</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="worker_name" className="text-gray-300">Worker Name</Label>
+              <Label htmlFor="worker_name" className="text-gray-300 text-sm">Worker Name</Label>
               <Input
                 id="worker_name"
                 value={editData.worker_name}
                 onChange={(e) => setEditData({...editData, worker_name: e.target.value})}
-                className="bg-slate-700 border-slate-600 text-white"
+                className="bg-slate-700 border-slate-600 text-white text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="total" className="text-gray-300">Total</Label>
+              <Label htmlFor="total" className="text-gray-300 text-sm">Total</Label>
               <Input
                 id="total"
                 type="number"
                 step="0.01"
                 value={editData.total}
                 onChange={(e) => setEditData({...editData, total: parseFloat(e.target.value) || 0})}
-                className="bg-slate-700 border-slate-600 text-white"
+                className="bg-slate-700 border-slate-600 text-white text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="kilograms" className="text-gray-300">Kilograms</Label>
+              <Label htmlFor="kilograms" className="text-gray-300 text-sm">Kilograms</Label>
               <Input
                 id="kilograms"
                 type="number"
                 step="0.01"
                 value={editData.kilograms}
                 onChange={(e) => setEditData({...editData, kilograms: parseFloat(e.target.value) || 0})}
-                className="bg-slate-700 border-slate-600 text-white"
+                className="bg-slate-700 border-slate-600 text-white text-sm"
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <Button 
                 onClick={handleEdit} 
                 disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 text-sm"
               >
                 {isLoading ? 'Saving...' : 'Save'}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditOpen(false)}
-                className="border-slate-600 text-gray-300 hover:bg-slate-700"
+                className="border-slate-600 text-gray-300 hover:bg-slate-700 text-sm"
               >
                 Cancel
               </Button>
@@ -143,11 +143,11 @@ const EditDeleteActions: React.FC<EditDeleteActionsProps> = ({ entry, onUpdate }
       <Button 
         size="sm" 
         variant="outline" 
-        className="text-red-600 hover:text-red-700 bg-white/10 border-red-500/50 hover:bg-red-500/20"
+        className="text-red-600 hover:text-red-700 bg-white/10 border-red-500/50 hover:bg-red-500/20 p-1 sm:p-2"
         onClick={handleDelete}
         disabled={isLoading}
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
       </Button>
     </div>
   );

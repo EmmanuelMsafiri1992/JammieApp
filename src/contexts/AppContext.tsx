@@ -19,6 +19,13 @@ interface KangarooBreakdown {
   western: { total: number; kilograms: number };
 }
 
+interface InventoryEntry {
+  category: string;
+  total: number;
+  kilograms: number;
+  chiller?: string | number;
+}
+
 interface AppContextType {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
@@ -26,7 +33,7 @@ interface AppContextType {
   goatsTotals: GoatsTotals;
   kangarooBreakdown: KangarooBreakdown;
   updateTotalsFromEntries: () => void;
-  addToStoredTotals: (entry: any) => Promise<void>;
+  addToStoredTotals: (entry: InventoryEntry) => Promise<void>;
   resetAllTotals: () => Promise<void>;
   resetChillerTotals: (chillerNumber: number) => Promise<void>;
   resetGoatsTotals: () => Promise<void>;
@@ -86,23 +93,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Load stored totals from database (persistent cumulative totals)
   const loadStoredTotals = async () => {
     try {
+      console.log('Attempting to load stored totals from database...');
       const { data, error } = await supabase
         .from('saved_totals')
         .select('*')
         .order('saved_at', { ascending: false })
         .limit(1);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error loading stored totals:', error);
+        // If table doesn't exist or other error, continue with defaults
+        return;
+      }
 
       if (data && data.length > 0) {
         const savedData = data[0];
-        setChillerTotals(savedData.chiller_totals);
-        setGoatsTotals(savedData.goats_totals);
-        setKangarooBreakdown(savedData.kangaroo_breakdown);
         console.log('Loaded stored totals from database:', savedData);
+        
+        // Safely set data with fallbacks
+        if (savedData.chiller_totals) {
+          setChillerTotals(savedData.chiller_totals);
+        }
+        if (savedData.goats_totals) {
+          setGoatsTotals(savedData.goats_totals);
+        }
+        if (savedData.kangaroo_breakdown) {
+          setKangarooBreakdown(savedData.kangaroo_breakdown);
+        }
+      } else {
+        console.log('No stored totals found in database, using defaults');
       }
     } catch (error) {
       console.error('Error loading stored totals:', error);
+      console.log('Continuing with default values...');
+      // Don't throw - let the app continue with default values
     }
   };
 
@@ -134,7 +158,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Add new entry to stored totals (grand_total = grand_total + new_entry_qty)
-  const addToStoredTotals = async (entry: any) => {
+  const addToStoredTotals = async (entry: InventoryEntry) => {
     try {
       console.log('=== addToStoredTotals called with entry:', JSON.stringify(entry, null, 2));
       console.log('Entry category (raw):', entry.category, 'Type:', typeof entry.category);
@@ -390,21 +414,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         throw new Error(`No entries found in Chiller ${chillerNumber}`);
       }
 
-      // Get current chiller totals from stored totals (not from database entries)
+      // Calculate actual available totals from database entries
+      const totalItems = entries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
+      const totalWeight = entries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
+      
+      // Check if we have enough items available based on actual database entries
+      if (quantity > totalItems) {
+        throw new Error(`Cannot remove ${quantity} items. Only ${totalItems} items available in Chiller ${chillerNumber} (based on current entries)`);
+      }
+
+      // Get current chiller totals from stored totals for proportional reduction
       const chillerKey = `chiller${chillerNumber}` as keyof ChillerTotals;
       const currentChillerTotal = newChillerTotals[chillerKey].total;
       const currentChillerKg = newChillerTotals[chillerKey].kilograms;
-      
-      if (quantity > currentChillerTotal) {
-        throw new Error(`Cannot remove ${quantity} items. Only ${currentChillerTotal} items available in Chiller ${chillerNumber}`);
-      }
 
-      // Calculate totals from entries for proportional calculations
-      const totalItems = entries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
-      const totalWeight = entries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
-
-      // Calculate weight to remove based on current stored totals
-      const avgWeightPerItem = currentChillerTotal > 0 ? currentChillerKg / currentChillerTotal : 0;
+      // Calculate weight to remove based on actual entry ratios
+      const avgWeightPerItem = totalItems > 0 ? totalWeight / totalItems : 0;
       const weightToRemove = quantity * avgWeightPerItem;
 
       // Calculate proportional breakdown reduction
@@ -605,7 +630,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   useEffect(() => {
-    loadStoredTotals();
+    // Load stored totals with error handling to prevent dashboard crashes
+    loadStoredTotals().catch(error => {
+      console.error('Failed to load stored totals on mount:', error);
+      // Continue with default values instead of crashing
+    });
   }, []);
 
   return (

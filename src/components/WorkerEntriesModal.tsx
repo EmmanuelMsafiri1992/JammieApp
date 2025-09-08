@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,13 +28,7 @@ const WorkerEntriesModal: React.FC<WorkerEntriesModalProps> = ({ isOpen, onClose
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && workerName) {
-      fetchWorkerEntries();
-    }
-  }, [isOpen, workerName]);
-
-  const fetchWorkerEntries = async () => {
+  const fetchWorkerEntries = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -51,7 +45,13 @@ const WorkerEntriesModal: React.FC<WorkerEntriesModalProps> = ({ isOpen, onClose
     } finally {
       setLoading(false);
     }
-  };
+  }, [workerName]);
+
+  useEffect(() => {
+    if (isOpen && workerName) {
+      fetchWorkerEntries();
+    }
+  }, [isOpen, workerName, fetchWorkerEntries]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {

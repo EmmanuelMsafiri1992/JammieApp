@@ -53,9 +53,9 @@ const LoadoutSelectionModal: React.FC<LoadoutSelectionModalProps> = ({ isOpen, o
       setQuantity('');
       onClose();
       window.location.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during partial loadout:', error);
-      alert(error.message || 'Failed to complete partial loadout. Please try again.');
+      alert((error instanceof Error ? error.message : String(error)) || 'Failed to complete partial loadout. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -115,18 +115,18 @@ const LoadoutSelectionModal: React.FC<LoadoutSelectionModalProps> = ({ isOpen, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[95vw] max-w-xs sm:max-w-md mx-4">
         <DialogHeader>
-          <DialogTitle>Loadout Options</DialogTitle>
+          <DialogTitle className="text-sm sm:text-base">Loadout Options</DialogTitle>
         </DialogHeader>
         
         {/* Partial Loadout Section */}
-        <div className="space-y-4 p-4 border rounded-lg">
-          <h3 className="font-semibold">Partial Loadout</h3>
-          <div className="space-y-2">
-            <Label htmlFor="chiller-select">Select Chiller</Label>
+        <div className="space-y-2 sm:space-y-4 p-2 sm:p-4 border rounded-lg">
+          <h3 className="font-semibold text-sm sm:text-base">Partial Loadout</h3>
+          <div className="space-y-1 sm:space-y-2">
+            <Label htmlFor="chiller-select" className="text-xs sm:text-sm">Select Chiller</Label>
             <Select value={selectedChiller} onValueChange={setSelectedChiller}>
-              <SelectTrigger>
+              <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
                 <SelectValue placeholder="Choose chiller..." />
               </SelectTrigger>
               <SelectContent>
@@ -137,8 +137,8 @@ const LoadoutSelectionModal: React.FC<LoadoutSelectionModalProps> = ({ isOpen, o
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity to Remove</Label>
+          <div className="space-y-1 sm:space-y-2">
+            <Label htmlFor="quantity" className="text-xs sm:text-sm">Quantity to Remove</Label>
             <Input
               id="quantity"
               type="number"
@@ -146,36 +146,37 @@ const LoadoutSelectionModal: React.FC<LoadoutSelectionModalProps> = ({ isOpen, o
               onChange={(e) => setQuantity(e.target.value)}
               placeholder="Enter quantity..."
               min="1"
+              className="h-8 sm:h-10 text-xs sm:text-sm"
             />
           </div>
           <Button 
             onClick={handlePartialLoadout}
             disabled={isLoading || !selectedChiller || !quantity}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-blue-600 hover:bg-blue-700 h-8 sm:h-10 text-xs sm:text-sm"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Partial Loadout'}
+            {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'Partial Loadout'}
           </Button>
         </div>
 
         {/* Full Loadout Section */}
-        <div className="space-y-4 p-4 border rounded-lg">
-          <h3 className="font-semibold">Full Loadout</h3>
-          <div className="grid grid-cols-2 gap-2">
-            <Button onClick={() => handleChillerLoadout('1')} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chiller 1'}
+        <div className="space-y-2 sm:space-y-4 p-2 sm:p-4 border rounded-lg">
+          <h3 className="font-semibold text-sm sm:text-base">Full Loadout</h3>
+          <div className="grid grid-cols-2 gap-1 sm:gap-2">
+            <Button onClick={() => handleChillerLoadout('1')} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 h-8 sm:h-10 text-xs sm:text-sm">
+              {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'Chiller 1'}
             </Button>
-            <Button onClick={() => handleChillerLoadout('2')} disabled={isLoading} className="bg-green-600 hover:bg-green-700">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chiller 2'}
+            <Button onClick={() => handleChillerLoadout('2')} disabled={isLoading} className="bg-green-600 hover:bg-green-700 h-8 sm:h-10 text-xs sm:text-sm">
+              {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'Chiller 2'}
             </Button>
-            <Button onClick={() => handleChillerLoadout('3')} disabled={isLoading} className="bg-orange-600 hover:bg-orange-700">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chiller 3'}
+            <Button onClick={() => handleChillerLoadout('3')} disabled={isLoading} className="bg-orange-600 hover:bg-orange-700 h-8 sm:h-10 text-xs sm:text-sm">
+              {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'Chiller 3'}
             </Button>
-            <Button onClick={() => handleChillerLoadout('4')} disabled={isLoading} className="bg-purple-600 hover:bg-purple-700">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Chiller 4'}
+            <Button onClick={() => handleChillerLoadout('4')} disabled={isLoading} className="bg-purple-600 hover:bg-purple-700 h-8 sm:h-10 text-xs sm:text-sm">
+              {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'Chiller 4'}
             </Button>
           </div>
-          <Button onClick={handleAllLoadout} disabled={isLoading} className="w-full bg-red-600 hover:bg-red-700">
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'All Chillers'}
+          <Button onClick={handleAllLoadout} disabled={isLoading} className="w-full bg-red-600 hover:bg-red-700 h-8 sm:h-10 text-xs sm:text-sm">
+            {isLoading ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : 'All Chillers'}
           </Button>
         </div>
       </DialogContent>

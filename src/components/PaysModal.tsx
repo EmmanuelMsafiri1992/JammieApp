@@ -180,32 +180,33 @@ const PaysModal: React.FC<PaysModalProps> = ({ isOpen, onClose, entries }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-lg sm:max-w-2xl md:max-w-6xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base md:text-lg">
+            <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
             Shooter Payments
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           {Object.entries(shooterPayments).map(([shooterName, data]) => (
             <Card key={shooterName} className="border bg-white">
-              <CardContent className="p-4">
-                <h3 className="font-bold text-lg mb-3">{shooterName}</h3>
+              <CardContent className="p-2 sm:p-4">
+                <h3 className="font-bold text-sm sm:text-base md:text-lg mb-2 sm:mb-3">{shooterName}</h3>
                 
-                  <div className="grid grid-cols-6 gap-4 text-sm font-medium text-gray-600 border-b pb-1">
-                    <span>Animal Type</span>
-                    <span>Number</span>
+                <div className="overflow-x-auto">
+                  <div className="grid grid-cols-6 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm font-medium text-gray-600 border-b pb-1 min-w-[320px]">
+                    <span>Animal</span>
+                    <span>Num</span>
                     <span>Kg</span>
-                    <span>Sub Total</span>
+                    <span>Sub</span>
                     <span>GST</span>
                     <span>Total</span>
                   </div>
                   
                   {data.kangarooCount > 0 && (
-                    <div className="grid grid-cols-6 gap-4 text-sm">
-                      <span className="font-medium text-orange-600">Kangaroo</span>
+                    <div className="grid grid-cols-6 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm min-w-[320px]">
+                      <span className="font-medium text-orange-600 truncate">Kangaroo</span>
                       <span>{data.kangarooCount}</span>
                       <span>{data.kangarooKgs.toFixed(1)}</span>
                       <span>${data.kangarooSubtotal.toFixed(2)}</span>
@@ -215,7 +216,7 @@ const PaysModal: React.FC<PaysModalProps> = ({ isOpen, onClose, entries }) => {
                   )}
                   
                   {data.goatCount > 0 && (
-                    <div className="grid grid-cols-6 gap-4 text-sm">
+                    <div className="grid grid-cols-6 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm min-w-[320px]">
                       <span className="font-medium text-green-600">Goat</span>
                       <span>{data.goatCount}</span>
                       <span>{data.goatKgs.toFixed(1)}</span>
@@ -225,14 +226,15 @@ const PaysModal: React.FC<PaysModalProps> = ({ isOpen, onClose, entries }) => {
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-6 gap-4 text-sm border-t pt-2 font-bold">
+                  <div className="grid grid-cols-6 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm border-t pt-2 font-bold min-w-[320px]">
                     <span></span>
                     <span></span>
                     <span></span>
                     <span></span>
                     <span>Total:</span>
-                    <span className="text-lg">${data.grandTotal.toFixed(2)}</span>
+                    <span className="text-sm sm:text-base md:text-lg">${data.grandTotal.toFixed(2)}</span>
                   </div>
+                </div>
 
               </CardContent>
             </Card>
@@ -240,43 +242,45 @@ const PaysModal: React.FC<PaysModalProps> = ({ isOpen, onClose, entries }) => {
           
           {/* Commission Summary */}
           <Card className="border-2 border-orange-200 bg-orange-50">
-            <CardContent className="p-4">
-              <h3 className="font-bold text-lg mb-3 text-orange-800">Commission</h3>
+            <CardContent className="p-2 sm:p-4">
+              <h3 className="font-bold text-sm sm:text-base md:text-lg mb-2 sm:mb-3 text-orange-800">Commission</h3>
               
-              <div className="space-y-2">
-                <div className="grid grid-cols-5 gap-4 text-sm font-medium text-gray-600 border-b pb-1">
-                  <span>Number</span>
-                  <span>Kg</span>
-                  <span>Sub Total</span>
-                  <span>GST</span>
-                  <span>Total</span>
-                </div>
-                
-                <div className="grid grid-cols-5 gap-4 text-sm">
-                  <span>{commissionSummary.totalKangarooCount + commissionSummary.totalGoatCount}</span>
-                  <span>{(commissionSummary.totalKangarooKgs + commissionSummary.totalGoatKgs).toFixed(1)}</span>
-                  <span>${commissionSummary.totalCommissionSubtotal.toFixed(2)}</span>
-                  <span>${commissionSummary.totalCommissionGst.toFixed(2)}</span>
-                  <span className="font-semibold text-lg">${commissionSummary.totalCommissionWithGst.toFixed(2)}</span>
+              <div className="overflow-x-auto">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm font-medium text-gray-600 border-b pb-1 min-w-[280px]">
+                    <span>Number</span>
+                    <span>Kg</span>
+                    <span>Sub Total</span>
+                    <span>GST</span>
+                    <span>Total</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-4 text-xs sm:text-sm min-w-[280px]">
+                    <span>{commissionSummary.totalKangarooCount + commissionSummary.totalGoatCount}</span>
+                    <span>{(commissionSummary.totalKangarooKgs + commissionSummary.totalGoatKgs).toFixed(1)}</span>
+                    <span>${commissionSummary.totalCommissionSubtotal.toFixed(2)}</span>
+                    <span>${commissionSummary.totalCommissionGst.toFixed(2)}</span>
+                    <span className="font-semibold text-sm sm:text-base md:text-lg">${commissionSummary.totalCommissionWithGst.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           {Object.keys(shooterPayments).length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-4 sm:py-8 text-gray-500 text-xs sm:text-sm">
               No shooter payment data available
             </div>
           )}
         </div>
         
-        <DialogFooter className="mt-4">
+        <DialogFooter className="mt-2 sm:mt-4">
           <Button 
             onClick={handlePaysReset}
             disabled={isResetting}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm h-8 sm:h-10"
           >
-            <Trash2 className={`w-4 h-4 mr-2 ${isResetting ? 'animate-pulse' : ''}`} />
+            <Trash2 className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isResetting ? 'animate-pulse' : ''}`} />
             {isResetting ? 'Resetting...' : 'Reset Pays Data'}
           </Button>
         </DialogFooter>

@@ -12,6 +12,38 @@ interface EmailResponse {
   error?: string;
 }
 
+interface ShooterPayment {
+  shooter: string;
+  roos: number;
+  kg: number;
+  rate: number;
+  payment: number;
+}
+
+interface SpeciesBreakdownItem {
+  species: string;
+  roos: number;
+  kg: number;
+}
+
+interface SpeciesBreakdown {
+  red: { total: number; kg: number };
+  eastern: { total: number; kg: number };
+  western: { total: number; kg: number };
+}
+
+interface PaysData {
+  shooterPayments: ShooterPayment[];
+  commission: number;
+  speciesBreakdown: SpeciesBreakdownItem[];
+}
+
+interface TotalsData {
+  chillerTotals: Record<string, { total: number; kilograms: number }>;
+  goatsTotals: { total: number; kilograms: number };
+  speciesBreakdown: SpeciesBreakdown;
+}
+
 export async function sendEmail(emailData: EmailData): Promise<EmailResponse> {
   try {
     console.log('Sending email to:', emailData.to);
@@ -48,7 +80,7 @@ export async function sendEmail(emailData: EmailData): Promise<EmailResponse> {
   }
 }
 
-export function generatePaysEmailContent(paysData: any): string {
+export function generatePaysEmailContent(paysData: PaysData): string {
   const { shooterPayments, commission, speciesBreakdown } = paysData;
   
   let html = `
@@ -69,7 +101,7 @@ export function generatePaysEmailContent(paysData: any): string {
         <tbody>
   `;
   
-  shooterPayments.forEach((payment: any) => {
+  shooterPayments.forEach((payment: ShooterPayment) => {
     html += `
       <tr>
         <td style="border: 1px solid #dee2e6; padding: 12px;">${payment.shooter}</td>
@@ -81,7 +113,7 @@ export function generatePaysEmailContent(paysData: any): string {
     `;
   });
   
-  const totalPayments = shooterPayments.reduce((sum: number, p: any) => sum + p.payment, 0);
+  const totalPayments = shooterPayments.reduce((sum: number, p: ShooterPayment) => sum + p.payment, 0);
   
   html += `
         <tr style="background-color: #e9ecef; font-weight: bold;">
@@ -109,7 +141,7 @@ export function generatePaysEmailContent(paysData: any): string {
         <tbody>
   `;
   
-  speciesBreakdown.forEach((species: any) => {
+  speciesBreakdown.forEach((species: SpeciesBreakdownItem) => {
     html += `
       <tr>
         <td style="border: 1px solid #dee2e6; padding: 12px;">${species.species}</td>
@@ -119,8 +151,8 @@ export function generatePaysEmailContent(paysData: any): string {
     `;
   });
   
-  const totalRoos = speciesBreakdown.reduce((sum: number, s: any) => sum + s.roos, 0);
-  const totalKg = speciesBreakdown.reduce((sum: number, s: any) => sum + s.kg, 0);
+  const totalRoos = speciesBreakdown.reduce((sum: number, s: SpeciesBreakdownItem) => sum + s.roos, 0);
+  const totalKg = speciesBreakdown.reduce((sum: number, s: SpeciesBreakdownItem) => sum + s.kg, 0);
   
   html += `
         <tr style="background-color: #e9ecef; font-weight: bold;">

@@ -69,63 +69,67 @@ const LoadedOutModal: React.FC<LoadedOutModalProps> = ({ isOpen, onClose, entrie
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <PackageOpen className="w-5 h-5" />
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base md:text-lg">
+              <PackageOpen className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
               Mark as Loaded Out
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-2 sm:space-y-4">
             <div className="flex justify-end">
               <Button
                 onClick={() => setShowChillerSelection(true)}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm h-8 sm:h-10"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Reset Chiller Totals
+                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Reset Chiller Totals</span>
+                <span className="sm:hidden">Reset</span>
               </Button>
             </div>
             
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Worker</TableHead>
-                  <TableHead>Shooter</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>KG</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {activeEntries.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell>{entry.worker_name}</TableCell>
-                    <TableCell>{entry.shooter_name || 'N/A'}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{entry.category}</Badge>
-                    </TableCell>
-                    <TableCell>{entry.total}</TableCell>
-                    <TableCell>{entry.kilograms.toFixed(1)}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        onClick={() => handleMarkLoadedOut(entry.id)}
-                        disabled={isLoading}
-                        className="bg-orange-600 hover:bg-orange-700"
-                      >
-                        Load Out
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs sm:text-sm">Worker</TableHead>
+                    <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Shooter</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Category</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Total</TableHead>
+                    <TableHead className="text-xs sm:text-sm">KG</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {activeEntries.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell className="text-xs sm:text-sm">{entry.worker_name}</TableCell>
+                      <TableCell className="text-xs sm:text-sm hidden sm:table-cell">{entry.shooter_name || 'N/A'}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">{entry.category}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs sm:text-sm">{entry.total}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{entry.kilograms.toFixed(1)}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          onClick={() => handleMarkLoadedOut(entry.id)}
+                          disabled={isLoading}
+                          className="bg-orange-600 hover:bg-orange-700 h-6 sm:h-8 text-xs px-2 sm:px-3"
+                        >
+                          <span className="hidden sm:inline">Load Out</span>
+                          <span className="sm:hidden">Load</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
             
             {activeEntries.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-4 sm:py-8 text-gray-500 text-xs sm:text-sm">
                 No active entries to load out
               </div>
             )}

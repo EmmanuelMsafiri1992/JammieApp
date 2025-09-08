@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -56,11 +56,11 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
   const paginatedEntries = filteredEntries.slice(startIndex, endIndex);
 
   // Reset to first page when entries change significantly
-  useMemo(() => {
+  useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(1);
     }
-  }, [filteredEntries.length, totalPages, currentPage]);
+  }, [totalPages, currentPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -100,7 +100,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
   return (
     <div className="space-y-4">
       {/* Search Input */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -121,48 +121,48 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
             </Button>
           )}
         </div>
-        <div className="text-sm text-gray-300 whitespace-nowrap">
+        <div className="text-xs sm:text-sm text-gray-300 whitespace-nowrap text-center sm:text-left">
           {searchTerm ? `${filteredEntries.length} of ${entries.length}` : `${entries.length} entries`}
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <Table>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <Table className="min-w-full">
         <TableHeader>
           <TableRow className="border-white/20">
-            <TableHead className="text-gray-300">Worker</TableHead>
-            <TableHead className="text-gray-300">Shooter</TableHead>
-            <TableHead className="text-gray-300">Category</TableHead>
-            <TableHead className="text-gray-300">Chiller</TableHead>
-            <TableHead className="text-gray-300">Total</TableHead>
-            <TableHead className="text-gray-300">KG</TableHead>
-            <TableHead className="text-gray-300">Status</TableHead>
-            <TableHead className="text-gray-300">Date</TableHead>
-            <TableHead className="text-gray-300">Actions</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Worker</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden sm:table-cell">Shooter</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Category</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden md:table-cell">Chiller</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Total</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden sm:table-cell">KG</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Status</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden md:table-cell">Date</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedEntries.map((entry) => (
             <TableRow key={entry.id} className="border-white/10 hover:bg-white/5">
-              <TableCell className="text-white font-medium">{entry.worker_name}</TableCell>
-              <TableCell className="text-white">{entry.shooter_name || 'N/A'}</TableCell>
-              <TableCell>
-                <Badge className={getCategoryColor(entry.category)}>
+              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4">{entry.worker_name}</TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">{entry.shooter_name || 'N/A'}</TableCell>
+              <TableCell className="px-2 sm:px-4">
+                <Badge className={`${getCategoryColor(entry.category)} text-xs`}>
                   {entry.category}
                 </Badge>
               </TableCell>
-              <TableCell className="text-white">Chiller {entry.chiller || 'N/A'}</TableCell>
-              <TableCell className="text-white font-semibold">{entry.total}</TableCell>
-              <TableCell className="text-white font-semibold">{entry.kilograms.toFixed(1)}</TableCell>
-              <TableCell>
-                <Badge className={getStatusColor(entry.loaded_out, entry.paid)}>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 hidden md:table-cell">Chiller {entry.chiller || 'N/A'}</TableCell>
+              <TableCell className="text-white font-semibold text-xs sm:text-sm px-2 sm:px-4">{entry.total}</TableCell>
+              <TableCell className="text-white font-semibold text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">{entry.kilograms.toFixed(1)}</TableCell>
+              <TableCell className="px-2 sm:px-4">
+                <Badge className={`${getStatusColor(entry.loaded_out, entry.paid)} text-xs`}>
                   {getStatusText(entry.loaded_out, entry.paid)}
                 </Badge>
               </TableCell>
-              <TableCell className="text-gray-300">
+              <TableCell className="text-gray-300 text-xs sm:text-sm px-2 sm:px-4 hidden md:table-cell">
                 {new Date(entry.created_at).toLocaleDateString()}
               </TableCell>
-              <TableCell>
+              <TableCell className="px-2 sm:px-4">
                 <EditDeleteActions entry={entry} onUpdate={onUpdate} />
               </TableCell>
             </TableRow>

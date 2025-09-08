@@ -1,3 +1,4 @@
+import React from 'react';
 import { useAppUpdater } from '@/hooks/useAppUpdater';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';

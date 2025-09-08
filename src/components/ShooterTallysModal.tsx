@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,13 +29,7 @@ const ShooterTallysModal: React.FC<ShooterTallysModalProps> = ({
   const [loading, setLoading] = useState(true);
   const [totals, setTotals] = useState<Record<string, { count: number; weight: number }>>({});
 
-  useEffect(() => {
-    if (isOpen && shooterName) {
-      fetchShooterEntries();
-    }
-  }, [isOpen, shooterName]);
-
-  const fetchShooterEntries = async () => {
+  const fetchShooterEntries = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -63,7 +57,13 @@ const ShooterTallysModal: React.FC<ShooterTallysModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [shooterName]);
+
+  useEffect(() => {
+    if (isOpen && shooterName) {
+      fetchShooterEntries();
+    }
+  }, [isOpen, shooterName, fetchShooterEntries]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-AU', {

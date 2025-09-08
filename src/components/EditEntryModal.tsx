@@ -43,7 +43,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({
     
     setLoading(true);
     try {
-      const updateData: any = {
+      const updateData: { total: number; kilograms?: number; shooter_name?: string; paid?: boolean; loaded_out?: boolean } = {
         total: Number(total) || 0,
       };
       

@@ -66,43 +66,43 @@ const ShootersModal: React.FC<ShootersModalProps> = ({ isOpen, onClose, entries 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">
+          <DialogTitle className="text-base sm:text-lg md:text-2xl font-bold text-center mb-2 sm:mb-4">
             Shooters Totals
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
           {Object.entries(shooterTotals).map(([shooterName, data]) => (
             <Card key={shooterName} className="border border-gray-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center">
-                  <User className="w-5 h-5 mr-2 text-blue-600" />
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-sm sm:text-base md:text-lg flex items-center">
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-2 text-blue-600" />
                   {shooterName}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="bg-blue-50 p-2 rounded">
-                    <div className="font-semibold text-blue-800 mb-1">Kangaroo</div>
-                    <div className="flex justify-between text-sm">
+              <CardContent className="pt-0">
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="bg-blue-50 p-1.5 sm:p-2 rounded">
+                    <div className="font-semibold text-blue-800 mb-1 text-xs sm:text-sm">Kangaroo</div>
+                    <div className="flex justify-between text-xs sm:text-sm">
                       <span>Total:</span>
                       <span>{data.kangaroo.total.toFixed(0)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs sm:text-sm">
                       <span>Weight:</span>
                       <span>{data.kangaroo.kg.toFixed(0)} kg</span>
                     </div>
                   </div>
                   {data.goat.total > 0 && (
-                    <div className="bg-green-50 p-2 rounded">
-                      <div className="font-semibold text-green-800 mb-1">Goat</div>
-                      <div className="flex justify-between text-sm">
+                    <div className="bg-green-50 p-1.5 sm:p-2 rounded">
+                      <div className="font-semibold text-green-800 mb-1 text-xs sm:text-sm">Goat</div>
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span>Total:</span>
                         <span>{data.goat.total.toFixed(0)}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span>Weight:</span>
                         <span>{data.goat.kg.toFixed(0)} kg</span>
                       </div>
@@ -115,7 +115,7 @@ const ShootersModal: React.FC<ShootersModalProps> = ({ isOpen, onClose, entries 
         </div>
         
         {Object.keys(shooterTotals).length === 0 && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-4 sm:py-8 text-gray-500 text-xs sm:text-sm">
             No shooter data available
           </div>
         )}

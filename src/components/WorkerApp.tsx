@@ -70,18 +70,18 @@ const WorkerApp: React.FC = () => {
   if (!isNameSet) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <div className="max-w-md mx-auto pt-20">
+        <div className="max-w-md mx-auto pt-12 sm:pt-20">
           <Card className="border-0 shadow-xl bg-white/90 backdrop-blur">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <User className="w-8 h-8 text-white" />
+            <CardHeader className="text-center pb-4 px-4 sm:px-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 ZAKR Wild Game
               </CardTitle>
-              <p className="text-lg font-semibold text-gray-700">Hillston Chiller</p>
+              <p className="text-base sm:text-lg font-semibold text-gray-700">Hillston Chiller</p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
                   First Name
@@ -109,7 +109,7 @@ const WorkerApp: React.FC = () => {
               </div>
               <Button
                 onClick={handleSetName}
-                className="w-full py-3 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="w-full py-3 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
               >
                 Continue
               </Button>
@@ -122,52 +122,52 @@ const WorkerApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="max-w-md mx-auto space-y-6">
+      <div className="max-w-md mx-auto space-y-6 pt-12 sm:pt-0">
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur">
-          <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Package2 className="w-8 h-8 text-white" />
+          <CardHeader className="text-center pb-4 px-4 sm:px-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <Package2 className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-800">
+            <CardTitle className="text-lg sm:text-2xl font-bold text-gray-800">
               ZAKR Wild Game Hillston Chiller
             </CardTitle>
-            <p className="text-gray-600">Welcome, {fullName}</p>
+            <p className="text-sm sm:text-base text-gray-600">Welcome, {fullName}</p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-center text-gray-600 mb-6">
+          <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
+            <p className="text-center text-sm sm:text-base text-gray-600 mb-6">
               Select a category to add inventory:
             </p>
             
             <div className="space-y-3">
               <Button
                 onClick={() => handleCategorySelect('Red')}
-                className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
               >
-                <Circle className="w-5 h-5 mr-3 fill-current" />
+                <Circle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 fill-current" />
                 Red
               </Button>
               
               <Button
                 onClick={() => handleCategorySelect('Western Grey')}
-                className="w-full py-4 text-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white"
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white"
               >
-                <Wheat className="w-5 h-5 mr-3" />
+                <Wheat className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 Western Grey
               </Button>
               
               <Button
                 onClick={() => handleCategorySelect('Eastern Grey')}
-                className="w-full py-4 text-lg font-semibold bg-gray-500 hover:bg-gray-600 text-white"
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold bg-gray-500 hover:bg-gray-600 text-white"
               >
-                <Beef className="w-5 h-5 mr-3" />
+                <Beef className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 Eastern Grey
               </Button>
               
               <Button
                 onClick={() => handleCategorySelect('Goats')}
-                className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
               >
-                <Zap className="w-5 h-5 mr-3" />
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 Goats
               </Button>
             </div>
@@ -175,7 +175,7 @@ const WorkerApp: React.FC = () => {
             <div className="pt-4 border-t space-y-3">
               <Button
                 onClick={() => setShowEntriesModal(true)}
-                className="w-full bg-green-500 hover:bg-green-600 text-white"
+                className="w-full py-2 sm:py-3 text-sm sm:text-base bg-green-500 hover:bg-green-600 text-white"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 View My Entries
@@ -190,7 +190,7 @@ const WorkerApp: React.FC = () => {
                   setLastName('');
                 }}
                 variant="outline"
-                className="w-full"
+                className="w-full py-2 sm:py-3 text-sm sm:text-base"
               >
                 Change Name
               </Button>

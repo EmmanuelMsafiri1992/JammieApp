@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 interface AppVersion {
   version: string;
@@ -27,7 +27,7 @@ export const useAppUpdater = () => {
     return newVersion;
   };
 
-  const checkForUpdates = async () => {
+  const checkForUpdates = useCallback(async () => {
     setIsChecking(true);
     try {
       // Add cache-busting parameter to force fresh fetch
@@ -58,7 +58,7 @@ export const useAppUpdater = () => {
       setIsChecking(false);
     }
     return false;
-  };
+  }, []);
 
   const applyUpdate = () => {
     // Clear all caches
@@ -83,7 +83,7 @@ export const useAppUpdater = () => {
     const interval = setInterval(checkForUpdates, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [checkForUpdates]);
 
   return {
     updateAvailable,

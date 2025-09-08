@@ -76,92 +76,94 @@ const RecentEntriesModal: React.FC<RecentEntriesModalProps> = ({ isOpen, onClose
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
-          <DialogTitle>Recent Inventory Entries</DialogTitle>
+          <DialogTitle className="text-sm sm:text-base md:text-lg">Recent Inventory Entries</DialogTitle>
           
           {/* Search Input - positioned right after title */}
-          <div className="flex items-center gap-2 mt-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Search by worker, category, chiller, count, weight, or date..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearSearch}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            )}
-          </div>
-            <div className="text-sm text-gray-500 whitespace-nowrap">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2 sm:mt-4">
+            <div className="relative flex-1 w-full sm:w-auto">
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-3 h-3 sm:w-4 sm:h-4" />
+              <Input
+                type="text"
+                placeholder="Search by worker, category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 sm:pl-10 pr-8 sm:pr-10 text-xs sm:text-sm h-8 sm:h-10"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSearch}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-5 w-5 sm:h-6 sm:w-6 p-0 hover:bg-gray-100"
+                >
+                  <X className="w-2 h-2 sm:w-3 sm:h-3" />
+                </Button>
+              )}
+            </div>
+            <div className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
               {searchTerm ? `${filteredEntries.length} of ${entries.length}` : `${entries.length} entries`}
             </div>
           </div>
         </DialogHeader>
         
         {isLoading ? (
-          <div className="text-center py-4">Loading...</div>
+          <div className="text-center py-4 text-xs sm:text-sm">Loading...</div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Worker</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Chiller</TableHead>
-                <TableHead>Count</TableHead>
-                <TableHead>Weight (kg)</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEntries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.worker_name}</TableCell>
-                  <TableCell>{entry.category}</TableCell>
-                  <TableCell>Chiller {entry.chiller}</TableCell>
-                  <TableCell>{entry.total}</TableCell>
-                  <TableCell>{entry.kilograms.toFixed(1)}</TableCell>
-                  <TableCell>{new Date(entry.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      entry.loaded_out ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {entry.loaded_out ? 'Loaded Out' : 'Active'}
-                    </span>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs sm:text-sm">Worker</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Category</TableHead>
+                  <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Chiller</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Count</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Weight</TableHead>
+                  <TableHead className="text-xs sm:text-sm hidden md:table-cell">Date</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredEntries.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell className="text-xs sm:text-sm">{entry.worker_name}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">{entry.category}</TableCell>
+                    <TableCell className="text-xs sm:text-sm hidden sm:table-cell">Ch {entry.chiller}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">{entry.total}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">{entry.kilograms.toFixed(1)}</TableCell>
+                    <TableCell className="text-xs sm:text-sm hidden md:table-cell">{new Date(entry.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs ${
+                        entry.loaded_out ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {entry.loaded_out ? 'Out' : 'Active'}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
         
         {!isLoading && filteredEntries.length === 0 && searchTerm && (
-          <div className="text-center py-8 text-gray-500">
-            <div className="mb-2">No entries found matching "{searchTerm}"</div>
-            <Button variant="outline" size="sm" onClick={clearSearch}>
+          <div className="text-center py-4 sm:py-8 text-gray-500">
+            <div className="mb-2 text-xs sm:text-sm">No entries found matching "{searchTerm}"</div>
+            <Button variant="outline" size="sm" onClick={clearSearch} className="text-xs sm:text-sm h-6 sm:h-8">
               Clear search
             </Button>
           </div>
         )}
         
         {!isLoading && entries.length === 0 && !searchTerm && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-4 sm:py-8 text-gray-500 text-xs sm:text-sm">
             No recent entries found
           </div>
         )}
         
-        <div className="flex justify-end pt-4">
-          <Button onClick={onClose}>Close</Button>
+        <div className="flex justify-end pt-2 sm:pt-4">
+          <Button onClick={onClose} className="text-xs sm:text-sm h-8 sm:h-10">Close</Button>
         </div>
       </DialogContent>
     </Dialog>

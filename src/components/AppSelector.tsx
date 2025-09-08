@@ -25,22 +25,22 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelectApp }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">ZAKR Wild Game</h1>
-          <h2 className="text-2xl font-semibold text-white mb-2">Hillston Chiller</h2>
-          <p className="text-gray-300">Choose your access level</p>
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">ZAKR Wild Game</h1>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-white mb-2">Hillston Chiller</h2>
+          <p className="text-sm sm:text-base text-gray-300">Choose your access level</p>
         </div>
 
         <Card className="border-0 bg-white/10 backdrop-blur-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-white text-xl">Select Application</CardTitle>
+          <CardHeader className="text-center px-4 py-4 sm:px-6 sm:py-6">
+            <CardTitle className="text-white text-lg sm:text-xl">Select Application</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
             <Button
               onClick={() => onSelectApp('worker')}
-              className="w-full py-6 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold text-lg transition-all duration-200 transform hover:scale-105"
+              className="w-full py-4 sm:py-6 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold text-base sm:text-lg transition-all duration-200 transform hover:scale-105"
             >
-              <Smartphone className="w-6 h-6 mr-3" />
+              <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               Worker App
             </Button>
 
@@ -57,16 +57,16 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelectApp }) => {
               <Button
                 onClick={() => setShowPasswordInput(true)}
                 variant="outline"
-                className="w-full py-6 border-2 border-purple-500 text-purple-300 hover:bg-purple-500 hover:text-white font-semibold text-lg transition-all duration-200 transform hover:scale-105"
+                className="w-full py-4 sm:py-6 border-2 border-purple-500 text-purple-300 hover:bg-purple-500 hover:text-white font-semibold text-base sm:text-lg transition-all duration-200 transform hover:scale-105"
               >
-                <Monitor className="w-6 h-6 mr-3" />
+                <Monitor className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                 Dashboard Access
               </Button>
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center space-x-2 text-gray-300">
                   <Lock className="w-4 h-4" />
-                  <span className="text-sm">Dashboard Password Required</span>
+                  <span className="text-xs sm:text-sm">Dashboard Password Required</span>
                 </div>
                 <Input
                   type="password"
@@ -76,10 +76,10 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelectApp }) => {
                   className="bg-white/10 border-gray-600 text-white placeholder-gray-400"
                   onKeyPress={(e) => e.key === 'Enter' && handleDashboardAccess()}
                 />
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <Button
                     onClick={handleDashboardAccess}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
                   >
                     Access Dashboard
                   </Button>
@@ -89,7 +89,7 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelectApp }) => {
                       setDashboardPassword('');
                     }}
                     variant="outline"
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700 text-sm sm:text-base"
                   >
                     Cancel
                   </Button>
