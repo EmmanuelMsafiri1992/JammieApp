@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Trash2, Calculator, Users, Settings, Download, DollarSign, PackageOpen, Clock, CreditCard, Refrigerator } from 'lucide-react';
+import SyncTotalsButton from './SyncTotalsButton';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
 import { exportToExcel } from './ExcelExport';
@@ -11,7 +12,6 @@ import PaysModal from './PaysModal';
 import LoadedOutModal from './LoadedOutModal';
 import RecentEntriesModal from './RecentEntriesModal';
 import LoadoutSelectionModal from './LoadoutSelectionModal';
-import MobileTestDialog from './MobileTestDialog';
 
 import DashboardTable from './DashboardTable';
 
@@ -33,7 +33,6 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isPaidResetting, setIsPaidResetting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [showTotalsModal, setShowTotalsModal] = useState(false);
   const [showShootersModal, setShowShootersModal] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -48,27 +47,17 @@ const Dashboard: React.FC = () => {
   const loadInventoryData = async () => {
     setIsLoading(true);
     try {
-      console.log('Loading inventory data from database...');
       const { data, error } = await supabase
         .from('inventory')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('Supabase error loading inventory:', error);
-        // If table doesn't exist or connection fails, show empty data instead of crashing
-        setEntries([]);
-        return;
-      }
-      
-      console.log(`Loaded ${data?.length || 0} inventory entries`);
+      if (error) throw error;
       setEntries(data || []);
       // Note: We don't call updateChillerTotals() or updateGoatsTotals() here
       // because totals should be managed by AppContext and preserved when using saved totals
     } catch (error) {
-      console.error('Error loading inventory data:', error);
-      console.log('Setting empty entries due to error');
-      setEntries([]);
+      console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +129,7 @@ const Dashboard: React.FC = () => {
       setEntries([]);
       
       // Step 5: Reload saved totals to ensure display shows the preserved totals
-      await loadStoredTotals();
+      await loadSavedTotals();
       
       alert('All shooter entries have been deleted and Pays have been reset! Totals remain unchanged.');
     } catch (error) {
@@ -148,15 +137,6 @@ const Dashboard: React.FC = () => {
       alert('Failed to delete entries and reset pays. Please try again.');
     } finally {
       setIsPaidResetting(false);
-    }
-  };
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    try {
-      await exportToExcel(entries);
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -191,72 +171,68 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-3 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">ZAKR Wild Game Hillston Chiller</h1>
-            <p className="text-sm sm:text-base text-gray-300">Real-time inventory tracking dashboard</p>
+            <h1 className="text-4xl font-bold text-white mb-2">ZAKR Wild Game Hillston Chiller</h1>
+            <p className="text-gray-300">Real-time inventory tracking dashboard</p>
+            <div className="mt-2">
+              <SyncTotalsButton />
+            </div>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 w-full lg:max-w-md">
+          <div className="grid grid-cols-2 gap-2 w-full max-w-md">
             <div className="space-y-2">
-              <Button onClick={() => setShowTotalsModal(true)} className="w-full py-2 px-3 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700">
-                <Calculator className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowTotalsModal(true)} className="w-full bg-purple-600 hover:bg-purple-700">
+                <Calculator className="w-4 h-4 mr-2" />
                 Totals
               </Button>
 
-              <Button onClick={() => setShowShootersModal(true)} className="w-full py-2 px-3 text-xs sm:text-sm bg-blue-600 hover:bg-blue-700">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowShootersModal(true)} className="w-full bg-blue-600 hover:bg-blue-700">
+                <Users className="w-4 h-4 mr-2" />
                 Shooters
               </Button>
-              <Button onClick={() => setShowPricingModal(true)} className="w-full py-2 px-3 text-xs sm:text-sm bg-orange-600 hover:bg-orange-700">
-                <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowPricingModal(true)} className="w-full bg-orange-600 hover:bg-orange-700">
+                <Settings className="w-4 h-4 mr-2" />
                 Pricing
               </Button>
-              <Button onClick={() => setShowPaysModal(true)} className="w-full py-2 px-3 text-xs sm:text-sm bg-green-600 hover:bg-green-700">
-                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowPaysModal(true)} className="w-full bg-green-600 hover:bg-green-700">
+                <DollarSign className="w-4 h-4 mr-2" />
                 Pays
               </Button>
-              <Button onClick={() => setShowRecentModal(true)} className="w-full py-2 px-3 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700">
-                <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowRecentModal(true)} className="w-full bg-indigo-600 hover:bg-indigo-700">
+                <Clock className="w-4 h-4 mr-2" />
                 Recent
               </Button>
             </div>
             <div className="space-y-2">
-              <Button onClick={() => setShowLoadoutModal(true)} disabled={isLoading} className="w-full py-2 px-3 text-xs sm:text-sm bg-cyan-600 hover:bg-cyan-700">
-                <PackageOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <Button onClick={() => setShowLoadoutModal(true)} disabled={isLoading} className="w-full bg-cyan-600 hover:bg-cyan-700">
+                <PackageOpen className="w-4 h-4 mr-2" />
                 Loadout
               </Button>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleExport} 
-                  disabled={isExporting} 
-                  className="flex-1 py-2 px-3 text-xs sm:text-sm bg-teal-600 hover:bg-teal-700"
-                >
-                  <Download className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isExporting ? 'animate-pulse' : ''}`} />
-                  {isExporting ? 'Exporting...' : 'Export'}
-                </Button>
-                {import.meta.env.DEV && <MobileTestDialog />}
-              </div>
+              <Button onClick={() => exportToExcel(entries)} className="w-full bg-teal-600 hover:bg-teal-700">
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
               <Button 
                 onClick={paidReset} 
                 disabled={isPaidResetting} 
-                className="w-full py-2 px-3 text-xs sm:text-sm bg-yellow-600 hover:bg-yellow-700"
+                className="w-full bg-yellow-600 hover:bg-yellow-700"
               >
-                <CreditCard className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isPaidResetting ? 'animate-pulse' : ''}`} />
+                <CreditCard className={`w-4 h-4 mr-2 ${isPaidResetting ? 'animate-pulse' : ''}`} />
                 Paid
               </Button>
               <Button 
                 onClick={resetInventory} 
                 disabled={isResetting} 
-                className="w-full py-2 px-3 text-xs sm:text-sm bg-red-600 hover:bg-red-700"
+                className="w-full bg-red-600 hover:bg-red-700"
               >
-                <Trash2 className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isResetting ? 'animate-pulse' : ''}`} />
+                <Trash2 className={`w-4 h-4 mr-2 ${isResetting ? 'animate-pulse' : ''}`} />
                 Reset
               </Button>
-              <Button onClick={loadInventoryData} disabled={isLoading} className="w-full py-2 px-3 text-xs sm:text-sm bg-blue-600 hover:bg-blue-700">
-                <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <Button onClick={loadInventoryData} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
@@ -264,8 +240,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Dashboard Table */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Recent Entries</h2>
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Recent Entries</h2>
           <DashboardTable entries={entries} onUpdate={loadInventoryData} />
         </div>
       </div>

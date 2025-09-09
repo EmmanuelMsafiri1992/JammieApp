@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { toast } from '@/hooks/use-toast';
 
 interface InventoryEntry {
   id: string;
@@ -13,7 +14,66 @@ interface InventoryEntry {
   chiller?: number;
 }
 
-export const exportToExcel = (entries: InventoryEntry[]) => {
+// Enhanced mobile and browser detection
+const detectEnvironment = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+  const isAndroid = /android/i.test(userAgent);
+  const isSafari = /safari/i.test(userAgent) && !/chrome/i.test(userAgent);
+  const isChrome = /chrome/i.test(userAgent);
+  const isFirefox = /firefox/i.test(userAgent);
+  
+  return {
+    isMobile,
+    isIOS,
+    isAndroid,
+    isSafari,
+    isChrome,
+    isFirefox,
+    userAgent,
+    supportsDownload: 'download' in document.createElement('a'),
+    supportsBlob: typeof Blob !== 'undefined'
+  };
+};
+
+// Test function to log environment details
+const logEnvironmentInfo = () => {
+  const env = detectEnvironment();
+  console.log('📱 Mobile Download Environment:', {
+    userAgent: env.userAgent,
+    isMobile: env.isMobile,
+    isIOS: env.isIOS,
+    isAndroid: env.isAndroid,
+    browser: env.isSafari ? 'Safari' : env.isChrome ? 'Chrome' : env.isFirefox ? 'Firefox' : 'Other',
+    supportsDownload: env.supportsDownload,
+    supportsBlob: env.supportsBlob,
+    timestamp: new Date().toISOString()
+  });
+  
+  return env;
+};
+
+export const exportToExcel = async (entries: InventoryEntry[]): Promise<boolean> => {
+  try {
+    // Data validation
+    if (!entries || entries.length === 0) {
+      toast({
+        title: "Export Error",
+        description: "No data available to export",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Log environment for testing
+    const env = logEnvironmentInfo();
+
+    // Show loading toast
+    toast({
+      title: "Exporting...",
+      description: `Preparing Excel file for ${env.isMobile ? 'mobile' : 'desktop'} download`,
+    });
   const activeEntries = entries.filter(entry => !entry.loaded_out);
   const kangarooPrice = parseFloat(localStorage.getItem('kangarooPrice') || '2.50');
   const goatPrice = parseFloat(localStorage.getItem('goatPrice') || '3.00');
@@ -75,7 +135,7 @@ export const exportToExcel = (entries: InventoryEntry[]) => {
   });
   
   const worksheetData = [
-    ['ZAKR Wild Game Hillston'],
+    ['ZAKR Wild Game - Shooter Report'],
     [],
     ['SHOOTER LINES'],
     ['Shooter Name', 'Total Kangaroo', 'Kg', 'Price', 'Total Goat', 'Kg', 'Price', 'Sub Total', 'GST', 'Total'],
@@ -122,49 +182,171 @@ export const exportToExcel = (entries: InventoryEntry[]) => {
     ['Goats', speciesBreakdown.goat.total, speciesBreakdown.goat.kg.toFixed(1)]
   ];
   
-  const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Shooter Report');
-  
-  const filename = `ZAKR-Shooter-Report-${new Date().toISOString().split('T')[0]}.xlsx`;
-  
-  try {
-    // Detect mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Shooter Report');
     
-    if (isMobile) {
-      // For mobile: Use data URI approach for better security
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+    const filename = `ZAKR-Shooter-Report-${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    // Enhanced mobile-compatible download with multiple fallback methods
+    const downloadSuccess = await attemptDownload(wb, filename, env);
+    
+    if (downloadSuccess) {
+      // Success feedback with iOS-specific messaging
+      const message = env.isIOS 
+        ? `File "${filename}" download initiated. Check your Downloads or Files app.`
+        : `File "${filename}" has been downloaded${env.isMobile ? ' to your device' : ''}`;
       
-      // Create secure data URI
-      const dataUri = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${wbout}`;
+      toast({
+        title: "Export Successful",
+        description: message,
+      });
       
-      // Create download link with data URI (more secure than blob)
+      // Log success for testing
+      console.log('✅ Download successful:', {
+        filename,
+        environment: env.isMobile ? 'mobile' : 'desktop',
+        isIOS: env.isIOS,
+        timestamp: new Date().toISOString()
+      });
+      
+      return true;
+    } else {
+      throw new Error('All download methods failed');
+    }
+    
+  } catch (error) {
+    console.error('❌ Export error:', error);
+    
+    // Error feedback
+    toast({
+      title: "Export Failed",
+      description: error instanceof Error ? error.message : "An unexpected error occurred during export",
+      variant: "destructive",
+    });
+    
+    return false;
+  }
+};
+
+// Enhanced download function with iOS-specific handling
+const attemptDownload = async (wb: XLSX.WorkBook, filename: string, env: ReturnType<typeof detectEnvironment>): Promise<boolean> => {
+  // For iOS devices, use a special approach
+  if (env.isIOS) {
+    console.log('🔄 iOS Device Detected - Using iOS-specific download method');
+    try {
+      // Method for iOS: Create downloadable link that opens in new window
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // For iOS, we need to open in a new window and let user save manually
       const link = document.createElement('a');
-      link.style.display = 'none';
-      link.href = dataUri;
+      link.href = url;
       link.download = filename;
       
-      // Append to body, click, then immediately remove
+      // Force download attribute and trigger click
+      link.setAttribute('download', filename);
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      
+      // Create a user-initiated event
+      const event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      
+      link.dispatchEvent(event);
+      document.body.removeChild(link);
+      
+      // Clean up
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      
+      console.log('✅ iOS download method executed');
+      return true;
+      
+    } catch (error) {
+      console.log('❌ iOS download method failed:', error);
+      
+      // Fallback for iOS: Show instructions to user
+      alert(`Download prepared! The file "${filename}" should start downloading. If not, please check your Downloads folder or try again.`);
+      return false;
+    }
+  }
+  
+  // For non-iOS devices, try multiple methods
+  const methods = [
+    // Method 1: Standard XLSX.writeFile (works on most devices)
+    () => {
+      console.log('🔄 Attempting Method 1: XLSX.writeFile');
+      XLSX.writeFile(wb, filename);
+      return true;
+    },
+    
+    // Method 2: Blob + URL.createObjectURL for mobile browsers
+    () => {
+      if (!env.supportsBlob) return false;
+      console.log('🔄 Attempting Method 2: Blob + URL.createObjectURL');
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      console.log('Mobile export completed with data URI');
-    } else {
-      // Desktop: Use standard writeFile
-      XLSX.writeFile(wb, filename);
-      console.log('Desktop export completed');
+      // Clean up the URL object
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      
+      return true;
+    },
+    
+    // Method 3: Data URI for other mobile browsers
+    () => {
+      console.log('🔄 Attempting Method 3: Data URI');
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+      const dataURI = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${wbout}`;
+      
+      const link = document.createElement('a');
+      link.href = dataURI;
+      link.download = filename;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      return true;
     }
-  } catch (error) {
-    console.error('Export error:', error);
-    // Fallback: Try basic writeFile regardless of platform
+  ];
+  
+  // Try each method in sequence
+  for (let i = 0; i < methods.length; i++) {
     try {
-      XLSX.writeFile(wb, filename);
-      console.log('Fallback export completed');
-    } catch (fallbackError) {
-      console.error('Fallback export failed:', fallbackError);
-      alert('Export failed. Please try refreshing the page and try again.');
+      const success = methods[i]();
+      if (success) {
+        console.log(`✅ Download method ${i + 1} succeeded`);
+        return true;
+      }
+    } catch (error) {
+      console.log(`⚠️ Download method ${i + 1} failed:`, error);
+      continue;
     }
   }
+  
+  console.log('❌ All download methods failed');
+  return false;
 };
