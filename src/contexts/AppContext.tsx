@@ -418,13 +418,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const totalItems = entries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
       const totalWeight = entries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
       
-      // Check if we have enough items available based on actual database entries
-      if (quantity > totalItems) {
-        throw new Error(`Cannot remove ${quantity} items. Only ${totalItems} items available in Chiller ${chillerNumber} (based on current entries)`);
+      // Check if we have enough items available based on stored totals (not database entries)
+      const chillerKey = `chiller${chillerNumber}` as keyof ChillerTotals;
+      const availableInTotals = newChillerTotals[chillerKey].total;
+      
+      if (quantity > availableInTotals) {
+        throw new Error(`Cannot remove ${quantity} items. Only ${availableInTotals} items available in Chiller ${chillerNumber} (based on current totals)`);
       }
 
       // Get current chiller totals from stored totals for proportional reduction
-      const chillerKey = `chiller${chillerNumber}` as keyof ChillerTotals;
       const currentChillerTotal = newChillerTotals[chillerKey].total;
       const currentChillerKg = newChillerTotals[chillerKey].kilograms;
 

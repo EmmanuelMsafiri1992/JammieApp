@@ -75,7 +75,7 @@ export const exportToExcel = (entries: InventoryEntry[]) => {
   });
   
   const worksheetData = [
-    ['ZAKR Wild Game - Shooter Report'],
+    ['ZAKR Wild Game Hillston'],
     [],
     ['SHOOTER LINES'],
     ['Shooter Name', 'Total Kangaroo', 'Kg', 'Price', 'Total Goat', 'Kg', 'Price', 'Sub Total', 'GST', 'Total'],
@@ -126,5 +126,45 @@ export const exportToExcel = (entries: InventoryEntry[]) => {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Shooter Report');
   
-  XLSX.writeFile(wb, `ZAKR-Shooter-Report-${new Date().toISOString().split('T')[0]}.xlsx`);
+  const filename = `ZAKR-Shooter-Report-${new Date().toISOString().split('T')[0]}.xlsx`;
+  
+  try {
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // For mobile: Use data URI approach for better security
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+      
+      // Create secure data URI
+      const dataUri = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${wbout}`;
+      
+      // Create download link with data URI (more secure than blob)
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = dataUri;
+      link.download = filename;
+      
+      // Append to body, click, then immediately remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log('Mobile export completed with data URI');
+    } else {
+      // Desktop: Use standard writeFile
+      XLSX.writeFile(wb, filename);
+      console.log('Desktop export completed');
+    }
+  } catch (error) {
+    console.error('Export error:', error);
+    // Fallback: Try basic writeFile regardless of platform
+    try {
+      XLSX.writeFile(wb, filename);
+      console.log('Fallback export completed');
+    } catch (fallbackError) {
+      console.error('Fallback export failed:', fallbackError);
+      alert('Export failed. Please try refreshing the page and try again.');
+    }
+  }
 };
