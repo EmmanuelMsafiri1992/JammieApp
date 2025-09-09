@@ -38,6 +38,7 @@ interface AppContextType {
   resetChillerTotals: (chillerNumber: number) => Promise<void>;
   resetGoatsTotals: () => Promise<void>;
   partialLoadout: (chillerNumber: number, quantity: number) => Promise<void>;
+  transferBetweenChillers: (fromChiller: number, toChiller: number, quantity: number) => Promise<void>;
   syncStoredTotalsWithDatabase: () => Promise<void>;
   loadStoredTotals: () => Promise<void>;
 }
@@ -63,6 +64,7 @@ const defaultAppContext: AppContextType = {
   resetChillerTotals: async () => {},
   resetGoatsTotals: async () => {},
   partialLoadout: async () => {},
+  transferBetweenChillers: async () => {},
   syncStoredTotalsWithDatabase: async () => {},
   loadStoredTotals: async () => {},
 };
@@ -494,6 +496,84 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Transfer between chillers - move quantity from one chiller to another
+  const transferBetweenChillers = async (fromChiller: number, toChiller: number, quantity: number) => {
+    const newChillerTotals = { ...chillerTotals };
+    
+    try {
+      // Validate chiller numbers
+      if (![1, 2, 3, 4].includes(fromChiller) || ![1, 2, 3, 4].includes(toChiller)) {
+        throw new Error('Invalid chiller numbers. Must be 1, 2, 3, or 4.');
+      }
+
+      if (fromChiller === toChiller) {
+        throw new Error('Cannot transfer to the same chiller.');
+      }
+
+      // Get chiller keys
+      const fromChillerKey = `chiller${fromChiller}` as keyof ChillerTotals;
+      const toChillerKey = `chiller${toChiller}` as keyof ChillerTotals;
+
+      // Check if source chiller has enough items
+      const availableItems = newChillerTotals[fromChillerKey].total;
+      if (quantity > availableItems) {
+        throw new Error(`Cannot transfer ${quantity} items. Only ${availableItems} items available in Chiller ${fromChiller}.`);
+      }
+
+      // Get entries from source chiller to calculate proportional weights and categories
+      const { data: fromEntries, error } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('chiller', fromChiller.toString());
+
+      if (error) throw error;
+
+      if (!fromEntries || fromEntries.length === 0) {
+        throw new Error(`No entries found in Chiller ${fromChiller}`);
+      }
+
+      // Calculate total items and weight for proportion calculation
+      const totalItems = fromEntries.reduce((sum, entry) => sum + (Number(entry.total) || 0), 0);
+      const totalWeight = fromEntries.reduce((sum, entry) => sum + (Number(entry.kilograms) || 0), 0);
+
+      // Calculate weight per item for this chiller
+      const avgWeightPerItem = totalItems > 0 ? totalWeight / totalItems : 0;
+      const weightToTransfer = quantity * avgWeightPerItem;
+
+      // Update chiller totals
+      newChillerTotals[fromChillerKey].total -= quantity;
+      newChillerTotals[fromChillerKey].kilograms -= weightToTransfer;
+      newChillerTotals[toChillerKey].total += quantity;
+      newChillerTotals[toChillerKey].kilograms += weightToTransfer;
+
+      // Note: Kangaroo breakdown stays the same as we're just moving between chillers
+      // The proportional breakdown doesn't need to change as totals remain the same
+
+      // Update state
+      setChillerTotals(newChillerTotals);
+
+      // Save to database
+      await supabase
+        .from('saved_totals')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      await supabase
+        .from('saved_totals')
+        .insert({
+          chiller_totals: newChillerTotals,
+          goats_totals: goatsTotals,
+          kangaroo_breakdown: kangarooBreakdown,
+          saved_at: new Date().toISOString()
+        });
+
+      console.log(`Transfer completed: Moved ${quantity} items (${weightToTransfer.toFixed(2)}kg) from Chiller ${fromChiller} to Chiller ${toChiller}`);
+    } catch (error) {
+      console.error(`Error during transfer from chiller ${fromChiller} to chiller ${toChiller}:`, error);
+      throw error;
+    }
+  };
+
   // Reset goats totals to zero and save to database (like chillers 1, 2, 3)
   const resetGoatsTotals = async () => {
     try {
@@ -653,6 +733,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetChillerTotals,
         resetGoatsTotals,
         partialLoadout,
+        transferBetweenChillers,
         syncStoredTotalsWithDatabase,
         loadStoredTotals,
       }}

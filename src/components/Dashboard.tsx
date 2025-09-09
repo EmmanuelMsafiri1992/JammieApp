@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Trash2, Calculator, Users, Settings, Download, DollarSign, PackageOpen, Clock, CreditCard, Refrigerator } from 'lucide-react';
+import { RefreshCw, Trash2, Calculator, Users, Settings, Download, DollarSign, PackageOpen, Clock, CreditCard, Refrigerator, ArrowLeftRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
 import { exportToExcel } from './ExcelExport';
@@ -11,6 +11,7 @@ import PaysModal from './PaysModal';
 import LoadedOutModal from './LoadedOutModal';
 import RecentEntriesModal from './RecentEntriesModal';
 import LoadoutSelectionModal from './LoadoutSelectionModal';
+import TransferModal from './TransferModal';
 import MobileTestDialog from './MobileTestDialog';
 
 import DashboardTable from './DashboardTable';
@@ -41,6 +42,7 @@ const Dashboard: React.FC = () => {
   const [showLoadedOutModal, setShowLoadedOutModal] = useState(false);
   const [showRecentModal, setShowRecentModal] = useState(false);
   const [showLoadoutModal, setShowLoadoutModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
 
 
   const { updateTotalsFromEntries, resetAllTotals, loadStoredTotals } = useAppContext();
@@ -228,6 +230,10 @@ const Dashboard: React.FC = () => {
                 <PackageOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Loadout
               </Button>
+              <Button onClick={() => setShowTransferModal(true)} disabled={isLoading} className="w-full py-2 px-3 text-xs sm:text-sm bg-pink-600 hover:bg-pink-700">
+                <ArrowLeftRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Transfer
+              </Button>
               <div className="flex gap-2">
                 <Button 
                   onClick={handleExport} 
@@ -308,6 +314,11 @@ const Dashboard: React.FC = () => {
       <LoadoutSelectionModal 
         isOpen={showLoadoutModal} 
         onClose={() => setShowLoadoutModal(false)} 
+      />
+
+      <TransferModal 
+        isOpen={showTransferModal} 
+        onClose={() => setShowTransferModal(false)} 
       />
     </div>
   );
