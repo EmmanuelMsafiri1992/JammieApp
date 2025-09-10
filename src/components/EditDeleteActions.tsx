@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAppContext } from '@/contexts/AppContext';
 
 interface InventoryEntry {
   id: string;
@@ -13,6 +14,7 @@ interface InventoryEntry {
   total: number;
   kilograms: number;
   created_at: string;
+  chiller?: string | number;
 }
 
 interface EditDeleteActionsProps {
@@ -28,6 +30,7 @@ const EditDeleteActions: React.FC<EditDeleteActionsProps> = ({ entry, onUpdate }
     kilograms: entry.kilograms
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { chillerTotals, goatsTotals, kangarooBreakdown } = useAppContext();
 
   const handleEdit = async () => {
     setIsLoading(true);
@@ -57,18 +60,100 @@ const EditDeleteActions: React.FC<EditDeleteActionsProps> = ({ entry, onUpdate }
     
     setIsLoading(true);
     try {
+      // First delete from inventory table
       const { error } = await supabase
         .from('inventory')
         .delete()
         .eq('id', entry.id);
       
       if (error) throw error;
+
+      // Then subtract from stored totals
+      await subtractFromStoredTotals(entry);
+      
       onUpdate();
     } catch (error) {
       console.error('Error deleting entry:', error);
       alert('Failed to delete entry');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Function to subtract deleted entry from stored totals
+  const subtractFromStoredTotals = async (deletedEntry: InventoryEntry) => {
+    try {
+      console.log('=== Subtracting deleted entry from stored totals ===', deletedEntry);
+      
+      const newChillerTotals = { ...chillerTotals };
+      const newGoatsTotals = { ...goatsTotals };
+      const newKangarooBreakdown = { ...kangarooBreakdown };
+
+      // Normalize values
+      const category = String(deletedEntry.category || '').trim();
+      const chiller = String(deletedEntry.chiller || '').trim();
+      const total = Number(deletedEntry.total) || 0;
+      const kilograms = Number(deletedEntry.kilograms) || 0;
+
+      // Subtract from appropriate chiller and category totals
+      if (category.toLowerCase() !== 'goats') {
+        // Handle chiller subtraction
+        const chillerNum = chiller === '1' || chiller === 1 ? '1' : 
+                          chiller === '2' || chiller === 2 ? '2' : 
+                          chiller === '3' || chiller === 3 ? '3' : 
+                          chiller === '4' || chiller === 4 ? '4' : null;
+        
+        if (chillerNum === '1') {
+          newChillerTotals.chiller1.total = Math.max(0, newChillerTotals.chiller1.total - total);
+          newChillerTotals.chiller1.kilograms = Math.max(0, newChillerTotals.chiller1.kilograms - kilograms);
+        } else if (chillerNum === '2') {
+          newChillerTotals.chiller2.total = Math.max(0, newChillerTotals.chiller2.total - total);
+          newChillerTotals.chiller2.kilograms = Math.max(0, newChillerTotals.chiller2.kilograms - kilograms);
+        } else if (chillerNum === '3') {
+          newChillerTotals.chiller3.total = Math.max(0, newChillerTotals.chiller3.total - total);
+          newChillerTotals.chiller3.kilograms = Math.max(0, newChillerTotals.chiller3.kilograms - kilograms);
+        } else if (chillerNum === '4') {
+          newChillerTotals.chiller4.total = Math.max(0, newChillerTotals.chiller4.total - total);
+          newChillerTotals.chiller4.kilograms = Math.max(0, newChillerTotals.chiller4.kilograms - kilograms);
+        }
+
+        // Subtract from kangaroo breakdown
+        const categoryLower = category.toLowerCase();
+        if (categoryLower.includes('red')) {
+          newKangarooBreakdown.red.total = Math.max(0, newKangarooBreakdown.red.total - total);
+          newKangarooBreakdown.red.kilograms = Math.max(0, newKangarooBreakdown.red.kilograms - kilograms);
+        } else if (categoryLower.includes('eastern')) {
+          newKangarooBreakdown.eastern.total = Math.max(0, newKangarooBreakdown.eastern.total - total);
+          newKangarooBreakdown.eastern.kilograms = Math.max(0, newKangarooBreakdown.eastern.kilograms - kilograms);
+        } else if (categoryLower.includes('western')) {
+          newKangarooBreakdown.western.total = Math.max(0, newKangarooBreakdown.western.total - total);
+          newKangarooBreakdown.western.kilograms = Math.max(0, newKangarooBreakdown.western.kilograms - kilograms);
+        }
+      } else {
+        // Subtract from goats totals
+        newGoatsTotals.total = Math.max(0, newGoatsTotals.total - total);
+        newGoatsTotals.kilograms = Math.max(0, newGoatsTotals.kilograms - kilograms);
+      }
+
+      // Save updated totals to database
+      await supabase
+        .from('saved_totals')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      await supabase
+        .from('saved_totals')
+        .insert({
+          chiller_totals: newChillerTotals,
+          goats_totals: newGoatsTotals,
+          kangaroo_breakdown: newKangarooBreakdown,
+          saved_at: new Date().toISOString()
+        });
+
+      console.log('Successfully subtracted deleted entry from stored totals');
+    } catch (error) {
+      console.error('Error subtracting from stored totals:', error);
+      throw error;
     }
   };
 
