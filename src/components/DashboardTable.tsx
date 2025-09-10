@@ -17,7 +17,7 @@ interface InventoryEntry {
   loaded_out?: boolean;
   paid?: boolean;
   shooter_name?: string;
-  chiller?: number;
+  chiller: string;
 }
 
 interface DashboardTableProps {
@@ -41,7 +41,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
       entry.worker_name.toLowerCase().includes(searchLower) ||
       (entry.shooter_name && entry.shooter_name.toLowerCase().includes(searchLower)) ||
       entry.category.toLowerCase().includes(searchLower) ||
-      entry.chiller?.toString().includes(searchLower) ||
+      entry.chiller.toString().includes(searchLower) ||
       entry.total.toString().includes(searchLower) ||
       entry.kilograms.toString().includes(searchLower) ||
       new Date(entry.created_at).toLocaleDateString().includes(searchLower) ||
@@ -133,7 +133,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Worker</TableHead>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden sm:table-cell">Shooter</TableHead>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Category</TableHead>
-            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden md:table-cell">Chiller</TableHead>
+            <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Chiller</TableHead>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Total</TableHead>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 hidden sm:table-cell">KG</TableHead>
             <TableHead className="text-gray-300 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4">Status</TableHead>
@@ -151,7 +151,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ entries, onUpdate }) =>
                   {entry.category}
                 </Badge>
               </TableCell>
-              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 hidden md:table-cell">Chiller {entry.chiller || 'N/A'}</TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">Chiller {entry.chiller}</TableCell>
               <TableCell className="text-white font-semibold text-xs sm:text-sm px-2 sm:px-4">{entry.total}</TableCell>
               <TableCell className="text-white font-semibold text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">{entry.kilograms.toFixed(1)}</TableCell>
               <TableCell className="px-2 sm:px-4">

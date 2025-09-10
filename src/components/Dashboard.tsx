@@ -26,7 +26,7 @@ interface InventoryEntry {
   loaded_out?: boolean;
   paid?: boolean;
   shooter_name?: string;
-  chiller?: number;
+  chiller: string;
 }
 
 const Dashboard: React.FC = () => {

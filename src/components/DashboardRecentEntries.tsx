@@ -14,7 +14,7 @@ interface InventoryEntry {
   loaded_out?: boolean;
   paid?: boolean;
   shooter_name?: string;
-  chiller?: number;
+  chiller: string;
 }
 
 const DashboardRecentEntries: React.FC = () => {
@@ -108,7 +108,7 @@ const DashboardRecentEntries: React.FC = () => {
                     {entry.total}/{entry.kilograms.toFixed(0)}kg
                   </div>
                   <div className="text-xs opacity-90">
-                    Chiller {entry.chiller || 'N/A'}
+                    Chiller {entry.chiller}
                   </div>
                 </div>
                 <div className="ml-2">
